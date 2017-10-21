@@ -26,6 +26,18 @@ namespace FindaHall.Controllers
 
             return View();
         }
+        public IActionResult Content()
+        {
+            ViewData["Message"] = ".";
+
+            return View();
+        }
+        public IActionResult Payment()
+        {
+            ViewData["Message"] = ".";
+
+            return View();
+        }
 
         public IActionResult Error()
         {

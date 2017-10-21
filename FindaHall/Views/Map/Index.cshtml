@@ -1,0 +1,39 @@
+@model FindaHall.Models.MapLocation
+@{
+    ViewData["Title"] = "Locations";
+
+}
+@section scripts {
+    <link rel="stylesheet" href="~/css/map.css" />
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+    
+    @*<script async
+            src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAMRk4qqPlKEGdp_JkifcvUUo2FmZcxj1M&callback=initMap">
+    </script>*@
+    <script type="text/javascript" src="http://maps.google.com/maps/api/js?key=AIzaSyAMRk4qqPlKEGdp_JkifcvUUo2FmZcxj1M&sensor=false"></script> 
+    <script type="text/javascript" src="~/js/StyledMarker.js"></script>
+    <script type="text/javascript" src="~/js/map.js"></script>
+}
+<body style="margin:0px; padding:0px;" onload="initMap()">
+    <div id="map"></div>
+    <div id="id01" class="w3-modal">
+        <div class="w3-modal-content">
+            <header class="w3-container w3-teal">
+                <span onclick="document.getElementById('id01').style.display='none'"
+                      class="w3-button w3-display-topright">&times;</span>
+                <h2>Details</h2>
+            </header>
+            <div class="w3-container">
+                <img src="https://www.esm.rochester.edu/uploads/HatchRecitalHall_Seats.jpg" width="100" height="100"/>
+                <form id="frmsearch" action="/Home/content" method="post">
+                   
+                    <div><input type="submit" id="btnsearch" value="Book Now" /></div>
+                </form>
+                
+            </div>
+            <footer class="w3-container w3-teal">
+                <p></p>
+            </footer>
+        </div>
+    </div>
+</body>
