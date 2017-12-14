@@ -1,11 +1,21 @@
-﻿@{
+﻿@model IEnumerable<FindaHall.Models.HallDetails>
+@{
     ViewData["Title"] = "Home Page";
 }
 
 
 <form id="frmsearch" action="Map/Index" method="post">
-    <div><input type="text" id="txtname" name="name" placeholder="Location" /></div>
-    <div><input type="text" id="txtfrom" name="from" placeholder="From" /></div>
-    <div><input type="text" id="txtto" name="to" placeholder="To" /></div>
-    <div><input type="submit" id="btnsearch" value="Search" /></div>
+
+    <div>
+        <input list="txtname" name="txtname" placeholder="Location">
+        <datalist id="txtname" name="txtname">
+            @foreach (var item in Model)
+            {
+                <option data-value="@item.H_ID">@item.Hall_Name, @item.City, @item.Street</option>
+                <option data-value="@item.H_ID">@item.City, @item.Street</option>
+            }
+        </datalist>
+
+        
+        <div><input type="submit" id="btnsearch" value="Search" /></div>
 </form>

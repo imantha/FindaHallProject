@@ -1,6 +1,12 @@
+@model FindaHall.Models.Details
 @{
     ViewData["Title"] = "Home Page";
 }
+@if (Model.img == null)
+{
+
+
+
 <form action="/Home/Payment" method="post">
     <h1>Book your space</h1>
     <div class="controls">
@@ -161,3 +167,9 @@
     </div>
     <input type="submit" value="Continue" />
 </form>
+}
+else
+{
+    <h2>@Model.header</h2>
+    <img src="@Model.img" />
+}

@@ -8,7 +8,11 @@ namespace FindaHall.Models
     public class MapLocation
     {
         public string Name { get; set; }
-        public double Lat { get; set; }
-        public double Lan { get; set; }
+        public double latitude { get; set; }
+        public double longitude { get; set; }
+        public string City { get; set; }
+        public string Street { get; set; }
+        public string Country { get; set; }
+        public int Price { get; set; }
     }
 }
