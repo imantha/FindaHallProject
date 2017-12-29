@@ -18,7 +18,7 @@
         success: function (json) {         
             var locations = [];
             for (var k = 0; k < mapobj.length; k++) {
-                locations.push([mapobj[k].name, mapobj[k].latitude, mapobj[k].longitude, mapobj[k].price]);
+                locations.push([mapobj[k].name, mapobj[k].latitude, mapobj[k].longitude, mapobj[k].price, mapobj[k].h_ID]);
             }
 
             var map = new google.maps.Map(document.getElementById('map'), {
@@ -30,13 +30,13 @@
             var infowindow = new google.maps.InfoWindow();
 
             var marker, i;
-            
             for (var j = 0; j < locations.length; j++) {
                 var styleIcon = new StyledIcon(StyledIconTypes.BUBBLE, { color: "#ffffff", text: '£'+locations[j][3] });
                 marker = new StyledMarker({
                     position: new google.maps.LatLng(locations[j][1], locations[j][2]),
                     styleIcon: styleIcon,
-                    map: map
+                    map: map,
+                    id: locations[j][4],
                 });
 
                 google.maps.event.addListener(marker, 'click', (function (marker, i) {
@@ -44,7 +44,7 @@
                         //infowindow.setContent(locations[i][0]);
                         //infowindow.open(map, marker);
                         //document.getElementById('selectedcity').value = Name;
-                        $('#selectedcity').val(name);
+                        $('#selectedcity').val(marker.id);
                         document.getElementById('id01').style.display = 'block';
                     };
                 })(marker, i));

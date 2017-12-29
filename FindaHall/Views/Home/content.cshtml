@@ -2,94 +2,123 @@
 @{
     ViewData["Title"] = "Home Page";
 }
+@section scripts {
+    <script type="text/javascript" src="~/js/jquery-3.2.1.min.js"></script>
+    <script type="text/javascript" src="~/js/moment.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.8.0/fullcalendar.min.css">
+    <link rel="stylesheet" media="print" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.8.0/fullcalendar.print.css">
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.8.0/fullcalendar.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            var id = $("#txthid").val();
+            $.ajax({
+                type: "POST",
+                url: "/Home/availabledate",
+                data: { 'id': id },
+                dataType: "json",
+                success: function (response) {
+                    var fromdt = sqlToJsDate(response.from_dt);
+                    var todt = sqlToJsDate(response.to_dt);
+                    var bookingdetails = response.bdetails;
+                    var event = new Array();
+                    for (var i = 0; i < bookingdetails.length; i++)
+                    {
+                        bfrmdt = sqlToJsDate(bookingdetails[i].from_dt);
+                        btodt = sqlToJsDate(bookingdetails[i].to_dt);
+                        
+                        bstdate = bfrmdt.getFullYear() + "-" + twodigitdate(bfrmdt.getMonth() + 1) + "-" + twodigitdate(bfrmdt.getDate()) + " " + twodigitdate(bfrmdt.getHours()) + ":" + twodigitdate(bfrmdt.getMinutes()) + ":" + twodigitdate(bfrmdt.getSeconds());
+                        bedate = btodt.getFullYear() + "-" + twodigitdate(btodt.getMonth() + 1) + "-" + twodigitdate(btodt.getDate()) + " " + twodigitdate(btodt.getHours()) + ":" + twodigitdate(btodt.getMinutes()) + ":" + twodigitdate(btodt.getSeconds());
+                        event.push({ 'title': 'Booked', 'start': bstdate, 'end': bedate, 'allDay': false });
+                    }
+                    debugger;
+                    $('#calendar').fullCalendar({
+                       
+                        today: true,
+                        events: event,
+                        //eventRender: function (event, element) {
+                        //    element.qtip({
+                        //        content: event.description
+                        //    });
+                        //},
+                        viewRender: function (currentView) {
+
+                            var minDate = moment(fromdt.getFullYear() + "-" + (fromdt.getMonth() + 1) + "-" + fromdt.getDate()),
+                                maxDate = moment(todt.getFullYear() + "-" + (todt.getMonth() + 1) + "-" + todt.getDate());
+                            // Past
+                            if (minDate >= currentView.start && minDate <= currentView.end) {
+                                $(".fc-prev-button").prop('disabled', true);
+                                $(".fc-prev-button").addClass('fc-state-disabled');
+                            }
+                            else {
+                                $(".fc-prev-button").removeClass('fc-state-disabled');
+                                $(".fc-prev-button").prop('disabled', false);
+                            }
+                            // Future
+                            if (maxDate >= currentView.start && maxDate <= currentView.end) {
+                                $(".fc-next-button").prop('disabled', true);
+                                $(".fc-next-button").addClass('fc-state-disabled');
+                            } else {
+                                $(".fc-next-button").removeClass('fc-state-disabled');
+                                $(".fc-next-button").prop('disabled', false);
+                            }
+                        }
+                    });
+                },
+                failure: function (response) {
+                    alert(response.responseText);
+                },
+                error: function (response) {
+                    alert(response.responseText);
+                }
+            });
+
+        });
+        function twodigitdate(date)
+        {
+            if (date.toString().length == 1) date = "0" + date;
+            return date;
+        }
+
+        function sqlToJsDate(sqlDate) {
+            //sqlDate in SQL DATETIME format ("yyyy-mm-dd hh:mm:ss")
+            var sqlDateArr1 = sqlDate.split("-");
+            //format of sqlDateArr1[] = ['yyyy','mm','dd hh:mm:ss']
+            var sYear = sqlDateArr1[0];
+            var sMonth = (Number(sqlDateArr1[1]) - 1).toString();
+            var sqlDateArr2 = sqlDateArr1[2].split(" ");
+            //format of sqlDateArr2[] = ['dd', 'hh:mm:ss']
+            var sDay = sqlDateArr2[0];
+            var sqlDateArr3 = sqlDateArr2[1].split(":");
+            //format of sqlDateArr3[] = ['hh','mm','ss']
+            var sHour = sqlDateArr3[0];
+            var sMinute = sqlDateArr3[1];
+            var sSecond = sqlDateArr3[2];
+
+            
+            return new Date(sYear, sMonth, sDay, sHour, sMinute, sSecond);
+        }
+    </script>
+
+}
 @if (Model.img == null)
 {
 
 
 
-<form action="/Home/Payment" method="post">
-    <h1>Book your space</h1>
-    <div class="controls">
-        <label class="radio "><input value="twodates" class="selection-chooser phorm_field_multiplechoice" id="id_booking_type_0" name="booking_type[]" type="radio" checked="checked"> For a continuous period of time</label>
-        <label class="radio "><input value="specificdates" class="selection-chooser phorm_field_multiplechoice" id="id_booking_type_1" name="booking_type[]" type="radio"> For a multi-date booking</label>
+    <form action="/Home/Payment" method="post">
+        <h1>Book your space</h1>
+        <div class="controls">
+            <label class="radio "><input value="twodates" class="selection-chooser phorm_field_multiplechoice" id="id_booking_type_0" name="booking_type[]" type="radio" checked="checked"> For a continuous period of time</label>
+            <label class="radio "><input value="specificdates" class="selection-chooser phorm_field_multiplechoice" id="id_booking_type_1" name="booking_type[]" type="radio"> For a multi-date booking</label>
 
 
 
-    </div>
-    <div id="booking_type-twodates" class="selection-container booking_type" style="display: block;">
-        <div class="control-group required">
-            <label class="control-label">From</label>
-            <div class="controls">
-                <input value="22 Oct 2017" class="datepicker input-small availability-calendar phorm_field_date hasDatepicker" placeholder="Date" id="id_start_date" name="start_date" readonly="readonly" track="click:checkout-dates-vehicle:start-date" type="text" autocomplete="off">            <select class="timepicker input-small phorm_field_time" id="id_start_time" name="start_time" track="click:checkout-dates-vehicle:start-time">
-                    <option value="" data-shortval="Time" data-longval="Time">Time</option>
-                    <option value="00:00:00" data-shortval="12:00am" data-longval="12:00am">12:00am</option>
-                    <option value="00:30:00" data-shortval="12:30am" data-longval="12:30am">12:30am</option>
-                    <option value="01:00:00" data-shortval="1:00am" data-longval="1:00am">1:00am</option>
-                    <option value="01:30:00" data-shortval="1:30am" data-longval="1:30am">1:30am</option>
-                    <option value="02:00:00" data-shortval="2:00am" data-longval="2:00am">2:00am</option>
-                    <option value="02:30:00" data-shortval="2:30am" data-longval="2:30am">2:30am</option>
-                    <option value="03:00:00" data-shortval="3:00am" data-longval="3:00am">3:00am</option>
-                    <option value="03:30:00" data-shortval="3:30am" data-longval="3:30am">3:30am</option>
-                    <option value="04:00:00" data-shortval="4:00am" data-longval="4:00am">4:00am</option>
-                    <option value="04:30:00" data-shortval="4:30am" data-longval="4:30am">4:30am</option>
-                    <option value="05:00:00" data-shortval="5:00am" data-longval="5:00am">5:00am</option>
-                    <option value="05:30:00" data-shortval="5:30am" data-longval="5:30am">5:30am</option>
-                    <option value="06:00:00" data-shortval="6:00am" data-longval="6:00am">6:00am</option>
-                    <option value="06:30:00" data-shortval="6:30am" data-longval="6:30am">6:30am</option>
-                    <option value="07:00:00" data-shortval="7:00am" data-longval="7:00am">7:00am</option>
-                    <option value="07:30:00" data-shortval="7:30am" data-longval="7:30am">7:30am</option>
-                    <option value="08:00:00" selected="selected" data-shortval="8:00am" data-longval="8:00am">8:00am</option>
-                    <option value="08:30:00" data-shortval="8:30am" data-longval="8:30am">8:30am</option>
-                    <option value="09:00:00" data-shortval="9:00am" data-longval="9:00am">9:00am</option>
-                    <option value="09:30:00" data-shortval="9:30am" data-longval="9:30am">9:30am</option>
-                    <option value="10:00:00" data-shortval="10:00am" data-longval="10:00am">10:00am</option>
-                    <option value="10:30:00" data-shortval="10:30am" data-longval="10:30am">10:30am</option>
-                    <option value="11:00:00" data-shortval="11:00am" data-longval="11:00am">11:00am</option>
-                    <option value="11:30:00" data-shortval="11:30am" data-longval="11:30am">11:30am</option>
-                    <option value="12:00:00" data-shortval="12:00pm (Noon)" data-longval="12:00pm (Noon)">12:00pm (Noon)</option>
-                    <option value="12:30:00" data-shortval="12:30pm" data-longval="12:30pm">12:30pm</option>
-                    <option value="13:00:00" data-shortval="1:00pm" data-longval="1:00pm">1:00pm</option>
-                    <option value="13:30:00" data-shortval="1:30pm" data-longval="1:30pm">1:30pm</option>
-                    <option value="14:00:00" data-shortval="2:00pm" data-longval="2:00pm">2:00pm</option>
-                    <option value="14:30:00" data-shortval="2:30pm" data-longval="2:30pm">2:30pm</option>
-                    <option value="15:00:00" data-shortval="3:00pm" data-longval="3:00pm">3:00pm</option>
-                    <option value="15:30:00" data-shortval="3:30pm" data-longval="3:30pm">3:30pm</option>
-                    <option value="16:00:00" data-shortval="4:00pm" data-longval="4:00pm">4:00pm</option>
-                    <option value="16:30:00" data-shortval="4:30pm" data-longval="4:30pm">4:30pm</option>
-                    <option value="17:00:00" data-shortval="5:00pm" data-longval="5:00pm">5:00pm</option>
-                    <option value="17:30:00" data-shortval="5:30pm" data-longval="5:30pm">5:30pm</option>
-                    <option value="18:00:00" data-shortval="6:00pm" data-longval="6:00pm">6:00pm</option>
-                    <option value="18:30:00" data-shortval="6:30pm" data-longval="6:30pm">6:30pm</option>
-                    <option value="19:00:00" data-shortval="7:00pm" data-longval="7:00pm">7:00pm</option>
-                    <option value="19:30:00" data-shortval="7:30pm" data-longval="7:30pm">7:30pm</option>
-                    <option value="20:00:00" data-shortval="8:00pm" data-longval="8:00pm">8:00pm</option>
-                    <option value="20:30:00" data-shortval="8:30pm" data-longval="8:30pm">8:30pm</option>
-                    <option value="21:00:00" data-shortval="9:00pm" data-longval="9:00pm">9:00pm</option>
-                    <option value="21:30:00" data-shortval="9:30pm" data-longval="9:30pm">9:30pm</option>
-                    <option value="22:00:00" data-shortval="10:00pm" data-longval="10:00pm">10:00pm</option>
-                    <option value="22:30:00" data-shortval="10:30pm" data-longval="10:30pm">10:30pm</option>
-                    <option value="23:00:00" data-shortval="11:00pm" data-longval="11:00pm">11:00pm</option>
-                    <option value="23:30:00" data-shortval="11:30pm" data-longval="11:30pm">11:30pm</option>
-                    <option value="23:59:59" data-shortval="Midnight" data-longval="Midnight">Midnight</option>
-                </select>
-            </div>
         </div>
-
-
-        <div class="form-group control-group">
-            <label class="control-label"></label>
-            <div class="controls">
-                <label for="id_infinite"><input value="on" class="phorm_field_checkbox" id="id_infinite" name="infinite" type="checkbox"> I would like a recurring weekly or monthly booking lasting <strong>longer than 6 weeks</strong></label>
-
-
-            </div>
-        </div>
-
-        <div id="enddate-container">
+        <div id="booking_type-twodates" class="selection-container booking_type" style="display: block;">
             <div class="control-group required">
-                <label class="control-label">Until</label>
+                <label class="control-label">From</label>
                 <div class="controls">
-                    <input value="22 Oct 2017" class="datepicker input-small availability-calendar phorm_field_date hasDatepicker" placeholder="Date" id="id_end_date" name="end_date" readonly="readonly" track="click:checkout-dates-vehicle:end-date" type="text" autocomplete="off">                <select class="timepicker input-small phorm_field_time" id="id_end_time" name="end_time">
+                    <input value="22 Oct 2017" class="datepicker input-small availability-calendar phorm_field_date hasDatepicker" placeholder="Date" id="id_start_date" name="start_date" readonly="readonly" track="click:checkout-dates-vehicle:start-date" type="text" autocomplete="off">            <select class="timepicker input-small phorm_field_time" id="id_start_time" name="start_time" track="click:checkout-dates-vehicle:start-time">
                         <option value="" data-shortval="Time" data-longval="Time">Time</option>
                         <option value="00:00:00" data-shortval="12:00am" data-longval="12:00am">12:00am</option>
                         <option value="00:30:00" data-shortval="12:30am" data-longval="12:30am">12:30am</option>
@@ -107,7 +136,7 @@
                         <option value="06:30:00" data-shortval="6:30am" data-longval="6:30am">6:30am</option>
                         <option value="07:00:00" data-shortval="7:00am" data-longval="7:00am">7:00am</option>
                         <option value="07:30:00" data-shortval="7:30am" data-longval="7:30am">7:30am</option>
-                        <option value="08:00:00" data-shortval="8:00am" data-longval="8:00am">8:00am</option>
+                        <option value="08:00:00" selected="selected" data-shortval="8:00am" data-longval="8:00am">8:00am</option>
                         <option value="08:30:00" data-shortval="8:30am" data-longval="8:30am">8:30am</option>
                         <option value="09:00:00" data-shortval="9:00am" data-longval="9:00am">9:00am</option>
                         <option value="09:30:00" data-shortval="9:30am" data-longval="9:30am">9:30am</option>
@@ -127,7 +156,7 @@
                         <option value="16:30:00" data-shortval="4:30pm" data-longval="4:30pm">4:30pm</option>
                         <option value="17:00:00" data-shortval="5:00pm" data-longval="5:00pm">5:00pm</option>
                         <option value="17:30:00" data-shortval="5:30pm" data-longval="5:30pm">5:30pm</option>
-                        <option value="18:00:00" selected="selected" data-shortval="6:00pm" data-longval="6:00pm">6:00pm</option>
+                        <option value="18:00:00" data-shortval="6:00pm" data-longval="6:00pm">6:00pm</option>
                         <option value="18:30:00" data-shortval="6:30pm" data-longval="6:30pm">6:30pm</option>
                         <option value="19:00:00" data-shortval="7:00pm" data-longval="7:00pm">7:00pm</option>
                         <option value="19:30:00" data-shortval="7:30pm" data-longval="7:30pm">7:30pm</option>
@@ -143,33 +172,104 @@
                     </select>
                 </div>
             </div>
-        </div>
 
-        <div id="weekday-container" class="hidden">
 
             <div class="form-group control-group">
-                <label for="id_weekdays" class="sr-only control-label">On the following days</label>
+                <label class="control-label"></label>
                 <div class="controls">
-                    <label class="checkbox wide checkbox"><input value="0" class="inline phorm_field_multiplechoice" id="id_weekdays_0" name="weekdays[]" type="checkbox" checked="checked"> Sunday</label>
-                    <label class="checkbox wide checkbox"><input value="1" class="inline phorm_field_multiplechoice" id="id_weekdays_1" name="weekdays[]" type="checkbox" checked="checked"> Monday</label>
-                    <label class="checkbox wide checkbox"><input value="2" class="inline phorm_field_multiplechoice" id="id_weekdays_2" name="weekdays[]" type="checkbox" checked="checked"> Tuesday</label>
-                    <label class="checkbox wide checkbox"><input value="3" class="inline phorm_field_multiplechoice" id="id_weekdays_3" name="weekdays[]" type="checkbox" checked="checked"> Wednesday</label>
-                    <label class="checkbox wide checkbox"><input value="4" class="inline phorm_field_multiplechoice" id="id_weekdays_4" name="weekdays[]" type="checkbox" checked="checked"> Thursday</label>
-                    <label class="checkbox wide checkbox"><input value="5" class="inline phorm_field_multiplechoice" id="id_weekdays_5" name="weekdays[]" type="checkbox" checked="checked"> Friday</label>
-                    <label class="checkbox wide checkbox"><input value="6" class="inline phorm_field_multiplechoice" id="id_weekdays_6" name="weekdays[]" type="checkbox" checked="checked"> Saturday</label>
-
+                    <label for="id_infinite"><input value="on" class="phorm_field_checkbox" id="id_infinite" name="infinite" type="checkbox"> I would like a recurring weekly or monthly booking lasting <strong>longer than 6 weeks</strong></label>
 
 
                 </div>
             </div>
-        </div>
 
-    </div>
-    <input type="submit" value="Continue" />
-</form>
+            <div id="enddate-container">
+                <div class="control-group required">
+                    <label class="control-label">Until</label>
+                    <div class="controls">
+                        <input value="22 Oct 2017" class="datepicker input-small availability-calendar phorm_field_date hasDatepicker" placeholder="Date" id="id_end_date" name="end_date" readonly="readonly" track="click:checkout-dates-vehicle:end-date" type="text" autocomplete="off">                <select class="timepicker input-small phorm_field_time" id="id_end_time" name="end_time">
+                            <option value="" data-shortval="Time" data-longval="Time">Time</option>
+                            <option value="00:00:00" data-shortval="12:00am" data-longval="12:00am">12:00am</option>
+                            <option value="00:30:00" data-shortval="12:30am" data-longval="12:30am">12:30am</option>
+                            <option value="01:00:00" data-shortval="1:00am" data-longval="1:00am">1:00am</option>
+                            <option value="01:30:00" data-shortval="1:30am" data-longval="1:30am">1:30am</option>
+                            <option value="02:00:00" data-shortval="2:00am" data-longval="2:00am">2:00am</option>
+                            <option value="02:30:00" data-shortval="2:30am" data-longval="2:30am">2:30am</option>
+                            <option value="03:00:00" data-shortval="3:00am" data-longval="3:00am">3:00am</option>
+                            <option value="03:30:00" data-shortval="3:30am" data-longval="3:30am">3:30am</option>
+                            <option value="04:00:00" data-shortval="4:00am" data-longval="4:00am">4:00am</option>
+                            <option value="04:30:00" data-shortval="4:30am" data-longval="4:30am">4:30am</option>
+                            <option value="05:00:00" data-shortval="5:00am" data-longval="5:00am">5:00am</option>
+                            <option value="05:30:00" data-shortval="5:30am" data-longval="5:30am">5:30am</option>
+                            <option value="06:00:00" data-shortval="6:00am" data-longval="6:00am">6:00am</option>
+                            <option value="06:30:00" data-shortval="6:30am" data-longval="6:30am">6:30am</option>
+                            <option value="07:00:00" data-shortval="7:00am" data-longval="7:00am">7:00am</option>
+                            <option value="07:30:00" data-shortval="7:30am" data-longval="7:30am">7:30am</option>
+                            <option value="08:00:00" data-shortval="8:00am" data-longval="8:00am">8:00am</option>
+                            <option value="08:30:00" data-shortval="8:30am" data-longval="8:30am">8:30am</option>
+                            <option value="09:00:00" data-shortval="9:00am" data-longval="9:00am">9:00am</option>
+                            <option value="09:30:00" data-shortval="9:30am" data-longval="9:30am">9:30am</option>
+                            <option value="10:00:00" data-shortval="10:00am" data-longval="10:00am">10:00am</option>
+                            <option value="10:30:00" data-shortval="10:30am" data-longval="10:30am">10:30am</option>
+                            <option value="11:00:00" data-shortval="11:00am" data-longval="11:00am">11:00am</option>
+                            <option value="11:30:00" data-shortval="11:30am" data-longval="11:30am">11:30am</option>
+                            <option value="12:00:00" data-shortval="12:00pm (Noon)" data-longval="12:00pm (Noon)">12:00pm (Noon)</option>
+                            <option value="12:30:00" data-shortval="12:30pm" data-longval="12:30pm">12:30pm</option>
+                            <option value="13:00:00" data-shortval="1:00pm" data-longval="1:00pm">1:00pm</option>
+                            <option value="13:30:00" data-shortval="1:30pm" data-longval="1:30pm">1:30pm</option>
+                            <option value="14:00:00" data-shortval="2:00pm" data-longval="2:00pm">2:00pm</option>
+                            <option value="14:30:00" data-shortval="2:30pm" data-longval="2:30pm">2:30pm</option>
+                            <option value="15:00:00" data-shortval="3:00pm" data-longval="3:00pm">3:00pm</option>
+                            <option value="15:30:00" data-shortval="3:30pm" data-longval="3:30pm">3:30pm</option>
+                            <option value="16:00:00" data-shortval="4:00pm" data-longval="4:00pm">4:00pm</option>
+                            <option value="16:30:00" data-shortval="4:30pm" data-longval="4:30pm">4:30pm</option>
+                            <option value="17:00:00" data-shortval="5:00pm" data-longval="5:00pm">5:00pm</option>
+                            <option value="17:30:00" data-shortval="5:30pm" data-longval="5:30pm">5:30pm</option>
+                            <option value="18:00:00" selected="selected" data-shortval="6:00pm" data-longval="6:00pm">6:00pm</option>
+                            <option value="18:30:00" data-shortval="6:30pm" data-longval="6:30pm">6:30pm</option>
+                            <option value="19:00:00" data-shortval="7:00pm" data-longval="7:00pm">7:00pm</option>
+                            <option value="19:30:00" data-shortval="7:30pm" data-longval="7:30pm">7:30pm</option>
+                            <option value="20:00:00" data-shortval="8:00pm" data-longval="8:00pm">8:00pm</option>
+                            <option value="20:30:00" data-shortval="8:30pm" data-longval="8:30pm">8:30pm</option>
+                            <option value="21:00:00" data-shortval="9:00pm" data-longval="9:00pm">9:00pm</option>
+                            <option value="21:30:00" data-shortval="9:30pm" data-longval="9:30pm">9:30pm</option>
+                            <option value="22:00:00" data-shortval="10:00pm" data-longval="10:00pm">10:00pm</option>
+                            <option value="22:30:00" data-shortval="10:30pm" data-longval="10:30pm">10:30pm</option>
+                            <option value="23:00:00" data-shortval="11:00pm" data-longval="11:00pm">11:00pm</option>
+                            <option value="23:30:00" data-shortval="11:30pm" data-longval="11:30pm">11:30pm</option>
+                            <option value="23:59:59" data-shortval="Midnight" data-longval="Midnight">Midnight</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div id="weekday-container" class="hidden">
+
+                <div class="form-group control-group">
+                    <label for="id_weekdays" class="sr-only control-label">On the following days</label>
+                    <div class="controls">
+                        <label class="checkbox wide checkbox"><input value="0" class="inline phorm_field_multiplechoice" id="id_weekdays_0" name="weekdays[]" type="checkbox" checked="checked"> Sunday</label>
+                        <label class="checkbox wide checkbox"><input value="1" class="inline phorm_field_multiplechoice" id="id_weekdays_1" name="weekdays[]" type="checkbox" checked="checked"> Monday</label>
+                        <label class="checkbox wide checkbox"><input value="2" class="inline phorm_field_multiplechoice" id="id_weekdays_2" name="weekdays[]" type="checkbox" checked="checked"> Tuesday</label>
+                        <label class="checkbox wide checkbox"><input value="3" class="inline phorm_field_multiplechoice" id="id_weekdays_3" name="weekdays[]" type="checkbox" checked="checked"> Wednesday</label>
+                        <label class="checkbox wide checkbox"><input value="4" class="inline phorm_field_multiplechoice" id="id_weekdays_4" name="weekdays[]" type="checkbox" checked="checked"> Thursday</label>
+                        <label class="checkbox wide checkbox"><input value="5" class="inline phorm_field_multiplechoice" id="id_weekdays_5" name="weekdays[]" type="checkbox" checked="checked"> Friday</label>
+                        <label class="checkbox wide checkbox"><input value="6" class="inline phorm_field_multiplechoice" id="id_weekdays_6" name="weekdays[]" type="checkbox" checked="checked"> Saturday</label>
+
+
+
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <input type="submit" value="Continue" />
+    </form>
 }
 else
 {
     <h2>@Model.header</h2>
     <img src="@Model.img" />
+    <div id='calendar'></div>
 }
+<input type="text" value="@Model.h_id" hidden name="txthid" id="txthid" />

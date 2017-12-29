@@ -5,17 +5,20 @@
 }
 @section scripts {
     <link rel="stylesheet" href="~/css/map.css" />
-<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
-    
+
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+
     @*<script async
-            src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAMRk4qqPlKEGdp_JkifcvUUo2FmZcxj1M&callback=initMap">
-    </script>*@
+                src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAMRk4qqPlKEGdp_JkifcvUUo2FmZcxj1M&callback=initMap">
+        </script>*@
     <script type="text/javascript" src="http://maps.google.com/maps/api/js?key=AIzaSyAMRk4qqPlKEGdp_JkifcvUUo2FmZcxj1M&sensor=false"></script>
 
-     
+
     <script type="text/javascript" src="~/js/StyledMarker.js"></script>
     <script type="text/javascript" src="~/js/map.js"></script>
+
 }
+
 <body style="margin:0px; padding:0px;" onload="initMap(@Json.Serialize(Model).ToString())">
     <div id="map"></div>
     <div id="id01" class="w3-modal">
@@ -26,16 +29,20 @@
                 <h2>Details</h2>
             </header>
             <div class="w3-container">
-                <img src="https://www.esm.rochester.edu/uploads/HatchRecitalHall_Seats.jpg" width="100" height="100"/>
+                <img src="https://www.esm.rochester.edu/uploads/HatchRecitalHall_Seats.jpg" width="100" height="100" />
                 <form id="frmsearch" action="/Home/content" method="post">
-                    <input type="text" value="" name="selectedcity" id="selectedcity" hidden/>
+                    <input type="text" value="" name="selectedcity" id="selectedcity" hidden />
                     <div><input type="submit" name="submit" id="btnsearch" value="Book Now" /></div>
                     <div><input type="submit" name="submit" id="btndetails" value="Details" /></div>
+                    @*<div><input type="button" name="btnavb" id="btnavb" value="Check availability" /></div>
+                        <div><input type="text" name="txtfrom" id="txtfrom" placeholder="From" /></div>
+                        <div><input type="text" name="txtto" id="txtto" placeholder="To" /></div>*@
+                  
                 </form>
                 
             </div>
             <footer class="w3-container w3-teal">
-                <p></p>
+                
             </footer>
         </div>
     </div>

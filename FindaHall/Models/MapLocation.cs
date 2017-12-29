@@ -7,6 +7,7 @@ namespace FindaHall.Models
 {
     public class MapLocation
     {
+        public string H_ID { get; set; }
         public string Name { get; set; }
         public double latitude { get; set; }
         public double longitude { get; set; }

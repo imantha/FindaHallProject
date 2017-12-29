@@ -9,5 +9,8 @@ namespace FindaHall.Models
     {
         public string img { get; set; }
         public string header { get; set; }
+        public string from_dt { get; set; }
+        public string to_dt { get; set; }
+        public string h_id { get; set; }
     }
 }

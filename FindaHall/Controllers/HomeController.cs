@@ -43,28 +43,24 @@ namespace FindaHall.Controllers
         }
         public IActionResult Content(string submit,string selectedcity)
         {
+            
             Details d = new Details();
             string img = "";
-            if (selectedcity == "sydney")
+            if (selectedcity == "1")
             {
                 img = "https://officesnapshots.com/wp-content/uploads/2017/02/004-700x467.jpg";
             }
-            if (selectedcity == "Melbourne")
+            if (selectedcity == "2")
             {
                 img = "http://www.arrowonswanston.com.au/uploads/9/8/1/8/98182264/img-5223_4_orig.jpg";
             }
-            if (selectedcity == "Brisbane")
+            if (selectedcity == "3")
             {
                 img = "http://bneahg.com.au/wp-content/uploads/2017/08/img-hotel-4-b.jpg";
             }
-
-            switch (submit)
-            {
-                case "Details":
-                    d.img = img;
-                    d.header = selectedcity + " " + "Hall";
-                    break;
-            }
+            d.img = img;
+            d.header = selectedcity + " " + "Hall";
+            d.h_id = selectedcity;
             ViewData["Message"] = ".";
             return View(d);
 
@@ -85,6 +81,14 @@ namespace FindaHall.Controllers
         public IActionResult Error()
         {
             return View();
+        }
+        [HttpPost]
+        public JsonResult availabledate(string id)
+        {
+            Availability avb = dbOpr.GetHallAvbDetails(userky, id);
+            List<BookingDetails> bdates = dbOpr.GetHallbookingDates(userky, id);
+            avb.Bdetails = bdates;
+            return Json(avb);
         }
     }
 }

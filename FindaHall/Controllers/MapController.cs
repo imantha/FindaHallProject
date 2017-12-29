@@ -49,6 +49,7 @@ namespace FindaHall.Controllers
                 longitude = Double.Parse(item.longitude);
                 MapLocation mapLoc = new MapLocation
                 {
+                    H_ID = item.H_ID,
                     Name = item.Hall_Name,
                     latitude = latitude,
                     longitude = longitude,

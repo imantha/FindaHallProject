@@ -46,6 +46,39 @@ namespace FindaHall.Api_Operations
             }
             return hall;
         }
+        internal Availability GetHallAvbDetails(int userky, string hallid)
+        {
+            HttpResponseMessage response = httpClient.GetAsync("api/GetHallAvbDetails?userky=" + userky + "&hallid=" + hallid + "").Result;
+            Availability hall = new Availability();
+            if (response.IsSuccessStatusCode)
+            {
+                string jstr = response.Content.ReadAsStringAsync().Result;
+                DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(Availability));
+                Availability deserializeditems = new Availability();
+                MemoryStream ms = new MemoryStream(Encoding.UTF8.GetBytes(jstr));
+                DataContractJsonSerializer ser = new DataContractJsonSerializer(deserializeditems.GetType());
+                deserializeditems = ser.ReadObject(ms) as Availability;
+                hall = deserializeditems;
+            }
+            return hall;
+        }
+
+        internal List<BookingDetails> GetHallbookingDates(int userky, string hallid)
+        {
+            HttpResponseMessage response = httpClient.GetAsync("api/GetHallbookingDates?userky=" + userky + "&hallid=" + hallid + "").Result;
+            List<BookingDetails> dates = new List<BookingDetails>();
+            if (response.IsSuccessStatusCode)
+            {
+                string jstr = response.Content.ReadAsStringAsync().Result;
+                DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(List<BookingDetails>));
+                List<BookingDetails> deserializeditems = new List<BookingDetails>();
+                MemoryStream ms = new MemoryStream(Encoding.UTF8.GetBytes(jstr));
+                DataContractJsonSerializer ser = new DataContractJsonSerializer(deserializeditems.GetType());
+                deserializeditems = ser.ReadObject(ms) as List<BookingDetails>;
+                dates = deserializeditems;
+            }
+            return dates;
+        }
 
     }
 
